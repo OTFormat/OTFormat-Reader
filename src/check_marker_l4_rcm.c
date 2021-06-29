@@ -322,10 +322,7 @@ static int clf_rcm_bucket_list(const char* const reference_commit_marker_buffer,
                                const uint64_t* const current_position, const uint64_t rcm_data_length) {
   int ret                                = OK;
   char* rcm_bucket_list                  = (char*)clf_allocate_memory(rcm_data_length + 1, "bucket list");
-  char* rcm_bucket_list_reformed         = (char*)clf_allocate_memory(rcm_data_length + 1, "bucket list");
-  char* char_obj_from_rcm_reformed       = NULL;
   char* char_obj_from_rcm                = NULL;
-  char* bucket_info_reformed             = NULL;
   json_object* json_obj_from_string      = NULL;
   json_object* json_obj_from_bucket_list = NULL;
   json_object* obj_bucket                = NULL;
@@ -339,17 +336,14 @@ static int clf_rcm_bucket_list(const char* const reference_commit_marker_buffer,
   } else {
     memmove(rcm_bucket_list, reference_commit_marker_buffer + *current_position, rcm_data_length);
 
-    str_replace(rcm_bucket_list, DOUBLE_QUART, SINGLE_QUART, rcm_bucket_list_reformed);
-    json_obj_from_string = json_tokener_parse(rcm_bucket_list_reformed);
+    json_obj_from_string = json_tokener_parse(rcm_bucket_list);
 
     json_object_object_foreach(json_obj_from_string, key, val) {
       ret |= output_accdg_to_vl(OUTPUT_INFO, DISPLAY_HEADER_AND_L4_INFO, "%s: %s\n", key, json_object_to_json_string(val));
       const size_t char_obj_from_rcm_length = strlen(json_object_to_json_string(val)) + 1;
       char_obj_from_rcm = (char*)clf_allocate_memory(char_obj_from_rcm_length + 1, "a JSON value");
       snprintf(char_obj_from_rcm, char_obj_from_rcm_length, "%s", json_object_to_json_string(val));
-      char_obj_from_rcm_reformed = (char*)clf_allocate_memory(char_obj_from_rcm_length + 1, "a reformed JSON value");
-      str_replace(char_obj_from_rcm, DOUBLE_QUART, SINGLE_QUART, char_obj_from_rcm_reformed);
-      json_obj_from_bucket_list = json_tokener_parse(char_obj_from_rcm_reformed);
+      json_obj_from_bucket_list = json_tokener_parse(char_obj_from_rcm);
 
       if (strcmp(key, "PoolGroupName") == 0) {
         ret |= check_pool_group_name(json_object_get_string(val));
@@ -364,12 +358,7 @@ static int clf_rcm_bucket_list(const char* const reference_commit_marker_buffer,
           obj_bucket = json_object_array_get_idx(json_obj_from_bucket_list, bucket_count);
           snprintf(char_obj_from_rcm, UNPACKED_OBJ_PATH_SIZE + 1, "%s", json_object_get_string(obj_bucket));
           if (json_object_get_type(obj_bucket) == json_type_object) {
-            bucket_info_reformed = clf_allocate_memory(strlen(json_object_get_string(obj_bucket)) + 1,
-                                                       "bucket information");
-            str_replace(json_object_get_string(obj_bucket), DOUBLE_QUART, SINGLE_QUART, bucket_info_reformed);
-            json_obj_bucket_info = json_tokener_parse(bucket_info_reformed);
-            free(bucket_info_reformed);
-            bucket_info_reformed = NULL;
+            json_obj_bucket_info = json_tokener_parse(json_object_get_string(obj_bucket));
             json_object_object_foreach(json_obj_bucket_info, key, val) {
               ret |= output_accdg_to_vl(OUTPUT_INFO, DISPLAY_HEADER_AND_L4_INFO, "%s: %s\n", key, json_object_to_json_string(val));
               if (strcmp(key,"BucketID") == 0) {
@@ -399,8 +388,6 @@ static int clf_rcm_bucket_list(const char* const reference_commit_marker_buffer,
       }
       free(char_obj_from_rcm);
       char_obj_from_rcm          = NULL;
-      free(char_obj_from_rcm_reformed);
-      char_obj_from_rcm_reformed = NULL;
       json_object_put(json_obj_from_bucket_list);
       json_obj_from_bucket_list  = NULL;
     }
@@ -410,14 +397,8 @@ static int clf_rcm_bucket_list(const char* const reference_commit_marker_buffer,
 
   free(rcm_bucket_list);
   rcm_bucket_list            = NULL;
-  free(rcm_bucket_list_reformed);
-  rcm_bucket_list_reformed   = NULL;
   free(char_obj_from_rcm);
   char_obj_from_rcm          = NULL;
-  free(char_obj_from_rcm_reformed);
-  char_obj_from_rcm_reformed = NULL;
-  free(bucket_info_reformed);
-  bucket_info_reformed       = NULL;
 
   return ret;
 }

@@ -24,6 +24,7 @@
 #include "ltos_format_checker.h"
 #include <time.h>
 #include <locale.h>
+#include <openssl/md5.h>
 
 //for obj_reader
 static time_t   lap_start                           = 0;
@@ -679,27 +680,62 @@ int extract_dir_path(const char* restrict filepath, char* dirpath) {
 
 /**
  * Get result of md5sum.
+ * @param [in]  (src)   pointer to the data you want to get a md5sum.
+ * @param [out] (hash)  result of md5sum
+ * @return      (OK/NG) If success to get a md5sum, return OK. Otherwise, return NG.
+ */
+static int get_md5(const unsigned char const *src, char *hash) {
+  int ret                             = OK;
+  MD5_CTX c                           = { 0 };
+  unsigned char md[MD5_DIGEST_LENGTH] = { 0 };
+
+  // NOTE: MD5_Init, MD5_Update, MD5_Final return 1 for success, 0 otherwise.
+  if (MD5_Init(&c) != 1) {
+    ret |= output_accdg_to_vl(OUTPUT_ERROR, DISPLAY_HEADER_INFO, "Failed to initialize in get_md5 function.\n");
+  }
+  if (MD5_Update(&c, src, strlen((char*) src)) != 1) {
+    ret |= output_accdg_to_vl(OUTPUT_ERROR, DISPLAY_HEADER_INFO, "Failed to update a data in get_md5 function.\n");
+  }
+  if (MD5_Final(md, &c) != 1) {
+    ret |= output_accdg_to_vl(OUTPUT_ERROR, DISPLAY_HEADER_INFO, "Failed to acquire a hash in get_md5 function.\n");
+  }
+
+  for(int i = 0; i < MD5_DIGEST_LENGTH ; i++) {
+    sprintf(&hash[i * 2], "%02x", (unsigned int)md[i]);
+  }
+  return ret;
+}
+
+/**
+ * OBSOLETE: Use get_md5sum function instead.
+ * Get result of md5sum.
  * @param [in]  (meta_data) meta data
  * @param [out] (hash)      result of md5sum
  * @return      (OK/NG)     If success to get object size, return OK. Otherwise, return NG.
  */
-static int get_hash(const char* const meta_data, char* hash) {
-  int ret = OK;
-  FILE* out = NULL;
-  char command_buff[COMMAND_SIZE + 1] = { '\0' };
-  char result_buff[32 + 1]  = { '\0' };
-  sprintf(command_buff, "echo -n \"%s\" | md5sum >%s", meta_data, MD5SUM_CMD_LOG_PATH);
-  system(command_buff);
-  out = fopen(MD5SUM_CMD_LOG_PATH,"r");
-  if (out == NULL) {
-    ret |= output_accdg_to_vl(OUTPUT_ERROR, DISPLAY_COMMON_INFO, "Failed to run \"md5sum\" commmand.\n");
-  }
-  fgets(result_buff, sizeof(result_buff), out);
-  sprintf(hash, result_buff);
-  (void) fclose(out);
-  out = NULL;
-  return ret;
-}
+//static int get_hash(const char* const meta_data, char* hash) {
+//  int ret = OK;
+//  FILE* out = NULL;
+//  char* command_buff = (char*)clf_allocate_memory(META_MAX_SIZE + 1, "command_buff");
+//  char result_buff[32 + 1]  = { '\0' };
+//
+//  sprintf(command_buff, "echo -n \"%s\" | md5sum >%s", meta_data, MD5SUM_CMD_LOG_PATH);
+//  if (strlen(command_buff) > META_MAX_SIZE) {
+//	  ret |= output_accdg_to_vl(OUTPUT_ERROR, DISPLAY_COMMON_INFO, "Meta size(%d) is too big. It must not be bigger than %d.\n", strlen(meta_data), META_MAX_SIZE - strlen(MD5SUM_CMD_LOG_PATH) - strlen("echo -n \"\" | md5sum >"));
+//  }
+//  system(command_buff);
+//  free(command_buff);
+//  command_buff = NULL;
+//  out = fopen(MD5SUM_CMD_LOG_PATH,"r");
+//  if (out == NULL) {
+//    ret |= output_accdg_to_vl(OUTPUT_ERROR, DISPLAY_COMMON_INFO, "Failed to run \"md5sum\" commmand.\n");
+//  }
+//  fgets(result_buff, sizeof(result_buff), out);
+//  sprintf(hash, result_buff);
+//  (void) fclose(out);
+//  out = NULL;
+//  return ret;
+//}
 
 /**
  * Get object size from metadata.
@@ -715,11 +751,7 @@ int get_element_from_metadata(const char* const meta_data, uint64_t* object_size
   ret = output_accdg_to_vl(OUTPUT_TRACE, DISPLAY_ALL_INFO, "start:get_element_from_metadata\n");
 
   json_object* jobj_from_meta_data = NULL;
-  char* meta_data_reformed         = (char*)clf_allocate_memory(strlen(meta_data)+ 1, "object_data_reformed");
-  str_replace(meta_data, DOUBLE_QUART, SINGLE_QUART, meta_data_reformed);
-  jobj_from_meta_data = json_tokener_parse(meta_data_reformed);
-  free(meta_data_reformed);
-  meta_data_reformed = NULL;
+  jobj_from_meta_data = json_tokener_parse(meta_data);
   json_object_object_foreach(jobj_from_meta_data, key, val) {
     if (!strcmp(key, "Size") && object_size != NULL) {
       *object_size = json_object_get_int64(val);
@@ -734,13 +766,15 @@ int get_element_from_metadata(const char* const meta_data, uint64_t* object_size
 //          strcpy(content_md5, json_object_get_string(vendor_fujifilm_val));
 //        }
 //      }
-    	get_hash(meta_data, object_id); // for tapes other than those made by Fujifilm.
     } else if (!strcmp(key, "LastModifiedTime") && last_modified != NULL) {
       strcpy(last_modified, json_object_get_string(val));
     } else if (!strcmp(key, "Version") && version_id != NULL) {
       strcpy(version_id, json_object_get_string(val));
     }
   }
+
+  ret |= get_md5((unsigned char*) meta_data, object_id);
+
   json_object_put(jobj_from_meta_data);
   jobj_from_meta_data = NULL;
 
@@ -1347,12 +1381,10 @@ int extract_json_element(const char *json_data, const char *json_key, char **jso
   //json_key = BucketList
 
 
-  char        *json_data_reformed    = (char*)clf_allocate_memory(strlen(json_data) + 1, "json_doc");
   const char  *tmp_json_element      = NULL;
   json_object *json_data_from_string = NULL;
 
-  str_replace(json_data, DOUBLE_QUART, SINGLE_QUART, json_data_reformed);
-  json_data_from_string = json_tokener_parse(json_data_reformed);
+  json_data_from_string = json_tokener_parse(json_data);
   if (json_data_from_string != NULL) {
     json_object_object_foreach(json_data_from_string, key, val) {
       if (strcmp(key, json_key) == 0) {
@@ -1363,7 +1395,6 @@ int extract_json_element(const char *json_data, const char *json_key, char **jso
   if (tmp_json_element != NULL) {
     strncpy(*json_element, tmp_json_element, strlen(tmp_json_element));
   }
-  free_safely(&json_data_reformed);
   if (json_data_from_string != NULL) json_object_put(json_data_from_string), json_data_from_string = NULL;
   //ret |= output_accdg_to_vl(OUTPUT_TRACE, DISPLAY_ALL_INFO, "end:extract_json_element\n");
   return ret;
