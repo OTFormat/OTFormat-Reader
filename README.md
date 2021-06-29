@@ -2,7 +2,7 @@
 
 OTFomat Reader, is a software provided openly and freely as binary or open source, which provides long term access to object data and metadata from a magnetic tape cartridge formatted with OTFormat. 
 
-Click [here](https://asset.fujifilm.com/www/jp/files/2021-04/342665ca9f7d283fd9e64fa9919ca92c/OTFormat-Reader_1.00_BINARY.zip) if you are interested in downloading the binary of OTFormat Reader.
+Click [here](https://asset.fujifilm.com/www/jp/files/2021-06/16f2225db621e497b08f83c8a974c69c/OTFormat-Reader_1.01_BINARY.zip) if you are interested in downloading the binary of OTFormat Reader.
 
 ## OTFormat Specifications
 
@@ -30,7 +30,7 @@ Also, OTFormat is a self-describing format which enables data and its meta data 
 ## How to use
 
 Follow either 1 or 2, and then load a tape to a drive and run this tool at your environment which satisfies the Requirements above.
-1. Download a binary file from [here](https://asset.fujifilm.com/www/jp/files/2021-04/342665ca9f7d283fd9e64fa9919ca92c/OTFormat-Reader_1.00_BINARY.zip) and deploy to your machine.
+1. Download a binary file from [here](https://asset.fujifilm.com/www/jp/files/2021-06/16f2225db621e497b08f83c8a974c69c/OTFormat-Reader_1.01_BINARY.zip) and deploy to your machine.
 2. Download the source codes and build them. Please refer to the following section “How to build”.
 
 NOTE:
@@ -136,8 +136,8 @@ NOTE: You may need to change “/dev/sg4” and “/mnt/save_path” to appropri
 	└── <bucketname>			
 	    ├── 0000				 0000 is a special directory, which will be used for 
 	    │   └── 0000                         reading the latest object or versioned object(s).
-	    │       ├── object_key
-	    │       │      ├──object_id.data
+	    │       ├── object_key               Directories will be created automatically in case an object KEY includes "/".
+	    │       │      ├──object_id.data     NOTE: "/" will be ignored if the last letter is "/".
 	    │       │      └──  object_id.meta
 	    │       ├── object_key
 	    │       ├── ...
@@ -170,11 +170,13 @@ NOTE: You may need to change “/dev/sg4” and “/mnt/save_path” to appropri
 1. [Eclipse IDE for C/C++ Developers](https://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/2021-03/R/eclipse-cpp-2021-03-R-linux-gtk-x86_64.tar.gz) has been installed.  
 2. Check if the following libraries have been installed.  
 ```
-    $ sudo yum list installed | grep -e json-c -e libuuid  
+    $ sudo yum list installed | grep -e json-c -e libuuid -e openssl 
         json-c.x86_64  
         json-c-devel.x86_64  
         libuuid.x86_64  
-        libuuid-devel.x86_64  
+        libuuid-devel.x86_64
+        openssl.x86_64
+        openssl-libs.x86_64
 ```
 3. Install them if they have not.  
 ```
@@ -182,14 +184,16 @@ NOTE: You may need to change “/dev/sg4” and “/mnt/save_path” to appropri
     $ sudo yum install -y json-c-devel
     $ sudo yum install -y libuuid  
     $ sudo yum install -y libuuid-devel
+    $ sudo yum install -y openssl  
+    $ sudo yum install -y openssl-libs    
 ```
 
 ### Setup on Eclipse
 
-1. Get project files.
-- Go to https://github.com/OTFormat/OTFormat-Reader
-- Click "Clone or download" and get all files.  
-- Make "otformat_reader" directory and put all files.  
+1. Get project files.  
+    Go to https://github.com/OTFormat/OTFormat-Reader
+    Click "Clone or download" and get all files.  
+    Make "otformat_reader" directory and put all files.  
 
 ```
 	otformat_reader
@@ -201,14 +205,14 @@ NOTE: You may need to change “/dev/sg4” and “/mnt/save_path” to appropri
 	└── .project
 ```
 
-2. Import projects.
-- Launch the eclipse.  
-- Click "Import" in the File menu.
-- Click "Existing project into workspace" in "General" and click "Next".
-- Check "Select root directory" and click "Browse" on the right side.
-- Select the "otformat_reader" directory which you made in the 1st step, and click "OK".
-- Click "Finish".
-- The imported project will be added and displayed in the "Project Explorer".  
+2. Import projects.  
+    Launch the eclipse.  
+    Click "Import" in the File menu.    
+    Click "Existing project into workspace" in "General" and click "Next".  
+    Check "Select root directory" and click "Browse" on the right side.  
+    Select the "otformat_reader" directory which you made in the 1st step, and click "OK".  
+    Click "Finish".  
+    The imported project will be added and displayed in the "Project Explorer".  
 
 ### Build the project
 
@@ -223,6 +227,10 @@ Executable file(sdt-otformat-reader) will be made.
 	└── Debug  
 	     └── sdt-otformat-reader  
 ```
+
+## Changes
+### Version 1.0.1
+  - Fix minor issues.
 
 ## License
 

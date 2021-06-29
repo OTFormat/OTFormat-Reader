@@ -497,6 +497,11 @@ static int cpof_only_meta(unsigned char* const data_buf, uint64_t* const current
     //struct json_object *value     = NULL; //this variable will be used when either FORMAT_031 or FORMAT_1_0_0 is defined.
     struct json_object *root_json = NULL;
     const int metadata_size       = (objects + objnum)->object_data_offset - (objects + objnum)->meta_data_offset;
+    if (metadata_size > META_MAX_SIZE) {
+    	ret |= output_accdg_to_vl(OUTPUT_ERROR, DEFAULT,
+    	    	                          "Meta data size is %d.\n"
+    	    	                          "%sIt should be smaller than %d.", metadata_size, INDENT, META_MAX_SIZE);
+    }
     unsigned char *metadata       = (unsigned char *)clf_allocate_memory(metadata_size + 1, "metadata");
     ret |= output_accdg_to_vl(OUTPUT_DEBUG, DEFAULT, "metadata_size=%d, data_offset=%lu, metadata_offset=%lu\n",
                               metadata_size, (objects + objnum)->object_data_offset,
@@ -593,12 +598,12 @@ static int cpof_only_meta(unsigned char* const data_buf, uint64_t* const current
                                 "%sSequence ID : %d\n" // # of Object will start from 1 but not 0.
                                 "%sMetadataVersion  : %d\n"
                                 "%sKey  : %s\n"
-                                "%sSize  : %d\n"
+                                "%sSize  : %ld\n"
                                 "%sLastModifiedTime  : %s\n", ret ? "not " : "",
                                 INDENT, objnum + 1,
                                 INDENT, json_object_get_int(metadata_version_metadata),
                                 INDENT, json_object_get_string(key_metadata),
-                                INDENT, json_object_get_int(size_metadata),
+                                INDENT, json_object_get_int64(size_metadata),
                                 INDENT, json_object_get_string(last_modified_time_metadata));
     json_object_put(metadata_version_metadata);
     metadata_version_metadata   = NULL;

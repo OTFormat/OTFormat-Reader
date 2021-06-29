@@ -216,7 +216,6 @@ static int check_block_size(const char* const str_block_size, uint32_t* const bl
 int clf_ltos_label(const MamVci* const mamvci, const MamHta* const mamhta, uint32_t* block_size) {
   int ret = output_accdg_to_vl(OUTPUT_TRACE, DISPLAY_HEADER_INFO, "start:clf_ltos_label\n");;
 
-  char* ltos_label_buffer_reformed                = NULL;
   LTOSLabel ltos_label                            = { 0 };
   json_object* jobj_from_string                   = NULL;
   json_object* json_obj_from_ltos_label           = NULL;
@@ -240,11 +239,7 @@ int clf_ltos_label(const MamVci* const mamvci, const MamHta* const mamhta, uint3
 #endif // FORMAT_031
 #endif // NO_TAPE
 
-  ltos_label_buffer_reformed = (char*)clf_allocate_memory(read_byte + 1, "OTFormat label");
-  str_replace(ltos_label_buffer, DOUBLE_QUART, SINGLE_QUART, ltos_label_buffer_reformed);
-  jobj_from_string = json_tokener_parse(ltos_label_buffer_reformed);
-  free(ltos_label_buffer_reformed);
-  ltos_label_buffer_reformed = NULL;
+  jobj_from_string = json_tokener_parse(ltos_label_buffer);
 
   initialize_ltos_label(&ltos_label);
 
