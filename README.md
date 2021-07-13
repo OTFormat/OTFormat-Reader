@@ -16,16 +16,16 @@ Metadata is also written to the Data Partition to enhance redundancy, while main
 
 Also, OTFormat is a self-describing format which enables data and its meta data to be directly retrieved from a single tape cartridge directly. Details please click [here](https://asset.fujifilm.com/www/jp/files/2021-04/9518fd348ccb9108440825bef2af56cb/OTFormat_Specification_ver2.0.0.pdf) if you are interested in accessing the OTFormat specification.  
 
-## Requiremnts
+## Requirements
 
 	Operating System: 	Red Hat Enterprise Linux 7.9, CentOS 7.9
 	CPU: 			x86_64 architecture
 	Memory: 		>64MB
 	Disk size: 		(MINIMUM)        > 100GB
-				(RECOMMENDATION) > 100GB + a toal capacity of objects you want to read from a tape
+				(RECOMMENDATION) > 100GB + a total capacity of objects you want to read from a tape
 	Tape drive: 		LTO8, TS1155 or TS1160 tape drive
 	Tape: 			LTO8, JD, JE, JL or JM tape formatted with the OTFormat
-	Compiler (OPTIONAL): 	gcc, version 4.8.5 20150623, was used for making the bindary
+	Compiler (OPTIONAL): 	gcc, version 4.8.5 20150623, was used for making the binary
 
 ## How to use
 
@@ -161,7 +161,7 @@ NOTE: You may need to change “/dev/sg4” and “/mnt/save_path” to appropri
 ### Restriction
 
 - Deleted objects are readable from a tape even if delete markers are written in the tape.
-- When a cartridge memory is not accessible, OTFormat Reader identifies a tape with the first six digit of a barcord label.
+- When a cartridge memory is not accessible, OTFormat Reader identifies a tape with the first six digit of a barcode label.
 
 ## How to build
 
