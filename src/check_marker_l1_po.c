@@ -353,8 +353,6 @@ static int cpof_obj_meta(unsigned char* const data_buf, int* const current_posit
 
     free(metadata);
     metadata  = NULL;
-    json_object_put(value);
-    value     = NULL;
     json_object_put(root_json);
     root_json = NULL;
     ret |= ret_sub;
@@ -523,7 +521,6 @@ static int cpof_only_meta(unsigned char* const data_buf, uint64_t* const current
                                 "Object Meta data is %scorrect.\n"
                                 "%sSequence ID : %d\n" // # of Object will start from 1 but not 0.
                                 "%sObject Key  : %s\n", ret ? "not " : "", INDENT, objnum + 1, INDENT, json_object_get_string(value));
-    json_object_put(value);
 #else
 */
     struct json_object *metadata_version_metadata   = NULL;
@@ -605,14 +602,6 @@ static int cpof_only_meta(unsigned char* const data_buf, uint64_t* const current
                                 INDENT, json_object_get_string(key_metadata),
                                 INDENT, json_object_get_int64(size_metadata),
                                 INDENT, json_object_get_string(last_modified_time_metadata));
-    json_object_put(metadata_version_metadata);
-    metadata_version_metadata   = NULL;
-    json_object_put(key_metadata);
-    key_metadata                = NULL;
-    json_object_put(size_metadata);
-    size_metadata               = NULL;
-    json_object_put(last_modified_time_metadata);
-    last_modified_time_metadata = NULL;
 //#endif  //if defined(FORMAT_031) || defined(FORMAT_1_0_0)
 
     json_object_put(root_json);

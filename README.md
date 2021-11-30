@@ -2,7 +2,7 @@
 
 OTFomat Reader, is a software provided openly and freely as binary or open source, which provides long term access to object data and metadata from a magnetic tape cartridge formatted with OTFormat. 
 
-Click [here](https://asset.fujifilm.com/www/jp/files/2021-06/16f2225db621e497b08f83c8a974c69c/OTFormat-Reader_1.01_BINARY.zip) if you are interested in downloading the binary of OTFormat Reader.
+Click [here](https://asset.fujifilm.com/www/jp/files/2021-11/c1b8c0af464bb9135fc3f68fa20b56af/OTFormat-Reader_1.02_BINARY.zip) if you are interested in downloading the binary of OTFormat Reader.
 
 ## OTFormat Specifications
 
@@ -18,7 +18,7 @@ Also, OTFormat is a self-describing format which enables data and its meta data 
 
 ## Requirements
 
-	Operating System: 	Red Hat Enterprise Linux 7.9, CentOS 7.9
+	Operating System: 	Red Hat Enterprise Linux 7.9 & 8.4, CentOS 7.9
 	CPU: 			x86_64 architecture
 	Memory: 		>64MB
 	Disk size: 		(MINIMUM)        > 100GB
@@ -30,7 +30,7 @@ Also, OTFormat is a self-describing format which enables data and its meta data 
 ## How to use
 
 Follow either 1 or 2, and then load a tape to a drive and run this tool at your environment which satisfies the Requirements above.
-1. Download a binary file from [here](https://asset.fujifilm.com/www/jp/files/2021-06/16f2225db621e497b08f83c8a974c69c/OTFormat-Reader_1.01_BINARY.zip) and deploy to your machine.
+1. Download a binary file from [here](https://asset.fujifilm.com/www/jp/files/2021-11/c1b8c0af464bb9135fc3f68fa20b56af/OTFormat-Reader_1.02_BINARY.zip) and deploy to your machine.
 2. Download the source codes and build them. Please refer to the following section “How to build”.
 
 NOTE:
@@ -231,6 +231,8 @@ Executable file(sdt-otformat-reader) will be made.
 ## Changes
 ### Version 1.0.1
   - Fix minor issues.
+### Version 1.0.2
+  - Fix memory related bugs.
 
 ## License
 
