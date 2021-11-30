@@ -18,7 +18,7 @@ Also, OTFormat is a self-describing format which enables data and its meta data 
 
 ## Requirements
 
-	Operating System: 	Red Hat Enterprise Linux 7.9, CentOS 7.9
+	Operating System: 	Red Hat Enterprise Linux 7.9 & 8.4, CentOS 7.9
 	CPU: 			x86_64 architecture
 	Memory: 		>64MB
 	Disk size: 		(MINIMUM)        > 100GB
@@ -231,6 +231,8 @@ Executable file(sdt-otformat-reader) will be made.
 ## Changes
 ### Version 1.0.1
   - Fix minor issues.
+### Version 1.0.2
+  - Fix memory related bugs.
 
 ## License
 
