@@ -23,8 +23,8 @@ Also, OTFormat is a self-describing format which enables data and its meta data 
 	Memory: 		>64MB
 	Disk size: 		(MINIMUM)        > 100GB
 				(RECOMMENDATION) > 100GB + a total capacity of objects you want to read from a tape
-	Tape drive: 		LTO8, TS1155 or TS1160 tape drive
-	Tape: 			LTO8, JD, JE, JL or JM tape formatted with the OTFormat
+	Tape drive: 		LTO7, LTO8, LTO9, TS1155 or TS1160 tape drive
+	Tape: 			LTO7, LTO8, LTO9, JD, JE, JL or JM tape formatted with the OTFormat
 	Compiler (OPTIONAL): 	gcc, version 4.8.5 20150623, was used for making the binary
 
 ## How to use
